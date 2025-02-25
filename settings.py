@@ -5,6 +5,8 @@ RED = (255,0,0)
 CYAN = (0,255,255)
 PINK = (255, 0, 255)
 BLACK = (0,0,0)
+
+
 class Settings:
     def __init__(self):
         self.screen_width = 1280
