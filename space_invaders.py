@@ -1,6 +1,7 @@
 import pygame
 import sys
 from ship import Ship
+from aliens import Aliens
 
 class SpaceInvaders:
     def __init__(self):
