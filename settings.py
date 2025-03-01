@@ -12,3 +12,6 @@ class Settings:
         self.screen_width = 1280
         self.screen_height = 720
         self.bg_color = BLACK
+
+        self.ship_limit = 3 # Amount of lives player can have
+
