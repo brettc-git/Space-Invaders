@@ -11,7 +11,10 @@ class SpaceInvaders:
         self.clock = pygame.time.Clock()
         self.settings = Settings()
         self.screen = pygame.display.set_mode((1280,720))
+
         pygame.display.set_caption("Space Invaders")
+
+        # Initialize ship
         self.ship = Ship(self)
 
         self.game_active = False
@@ -22,6 +25,10 @@ class SpaceInvaders:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+
+            self.screen.fill(self.settings.bg_color)
+            self.ship.blitme()
+
             pygame.display.flip()
             self.clock.tick(60)
 
@@ -31,7 +38,6 @@ class SpaceInvaders:
         self.ship.x = float(self.rect.x)
 
     def update_screen(self):
-        self.screen.fill(self.bg_color)
         self.ship.blitme()
 
 if __name__ == "__main__":
