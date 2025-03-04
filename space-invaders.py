@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 from time import sleep
 from pygame.sprite import Group, groupcollide
 
@@ -474,51 +475,161 @@ class SpaceInvaders:
         button_rect = text_rect.inflate(40, 20)
         
         return ((text_image, text_rect), button_rect)
-    
+
     def _draw_launch_screen(self):
-        """Draw the launch screen."""
-        # Fill background
-        self.screen.fill(self.settings.bg_color)
-        
-        # Draw game title
-        title_font = pygame.font.SysFont('Arial', 80)
-        title_text = title_font.render("SPACE INVADERS", True, (255, 255, 255))
-        title_rect = title_text.get_rect(centerx=self.screen.get_rect().centerx, y=100)
+        """Draw a retro-styled launch screen."""
+        # Fill background with deep space black
+        self.screen.fill((0, 0, 0))
+
+        # Draw starfield effect
+        for _ in range(100):
+            x = random.randint(0, self.settings.screen_width)
+            y = random.randint(0, self.settings.screen_height)
+            size = random.randint(1, 3)
+            brightness = random.randint(150, 255)
+            pygame.draw.circle(self.screen, (brightness, brightness, brightness), (x, y), size)
+
+        # Draw scan lines effect (retro CRT look)
+        for y in range(0, self.settings.screen_height, 4):
+            pygame.draw.line(self.screen, (0, 0, 0), (0, y), (self.settings.screen_width, y), 1)
+
+        # Draw glowing classic logo - with more vertical spacing
+        title_font = pygame.font.SysFont('Courier New', 80, bold=True)
+        shadow_offset = 2
+
+        # Shadow for glow effect
+        for offset in range(1, 5):
+            glow_color = (0, min(50 + offset * 10, 255), min(50 + offset * 10, 255))
+            title_shadow = title_font.render("SPACE INVADERS", True, glow_color)
+            shadow_rect = title_shadow.get_rect(centerx=self.screen.get_rect().centerx, y=80 - offset)
+            self.screen.blit(title_shadow, shadow_rect)
+
+        # Main title with pixel-like appearance
+        title_text = title_font.render("SPACE INVADERS", True, (0, 255, 0))
+        title_rect = title_text.get_rect(centerx=self.screen.get_rect().centerx, y=80)
         self.screen.blit(title_text, title_rect)
-        
-        # Draw alien values
-        value_font = pygame.font.SysFont('Arial', 36)
-        
-        # Sample aliens at different positions
+
+        # Blinking "INSERT COIN" text - moved to bottom of screen
+        if pygame.time.get_ticks() % 1000 < 500:  # Blink every half second
+            coin_font = pygame.font.SysFont('Courier New', 24)
+            coin_text = coin_font.render("INSERT COIN", True, (255, 255, 0))
+            coin_rect = coin_text.get_rect(centerx=self.screen.get_rect().centerx, y=620)
+            self.screen.blit(coin_text, coin_rect)
+
+        # Pixelated border around the screen (arcade cabinet style)
+        border_width = 20
+        pygame.draw.rect(self.screen, (40, 40, 40), (0, 0, self.settings.screen_width, border_width))
+        pygame.draw.rect(self.screen, (40, 40, 40), (0, self.settings.screen_height - border_width,
+                                                     self.settings.screen_width, border_width))
+        pygame.draw.rect(self.screen, (40, 40, 40), (0, 0, border_width, self.settings.screen_height))
+        pygame.draw.rect(self.screen, (40, 40, 40), (self.settings.screen_width - border_width, 0,
+                                                     border_width, self.settings.screen_height))
+
+        # Draw retro-styled alien showcase with animated movement
+        value_font = pygame.font.SysFont('Courier New', 30)
+        time_factor = pygame.time.get_ticks() / 500  # For animation
+
+        # Keep all alien types - they're essential for gameplay instructions
         sample_aliens = [
-            (RedAlien(self, 0, 0), "= 40 POINTS", (255, 0, 0)),
-            (BlueAlien(self, 0, 0), "= 20 POINTS", (0, 0, 255)),
-            (GreenAlien(self, 0, 0), "= 10 POINTS", (0, 255, 0)),
-            (PinkAlien(self, 0, 0), "= 30 POINTS", (255, 0, 255)),
+            (RedAlien(self, 0, 0), "= 40 PTS", (255, 0, 0)),
+            (BlueAlien(self, 0, 0), "= 20 PTS", (0, 0, 255)),
+            (GreenAlien(self, 0, 0), "= 10 PTS", (0, 255, 0)),
+            (PinkAlien(self, 0, 0), "= 30 PTS", (255, 0, 255)),
             (UFO(self), "= ???", (255, 255, 255))
         ]
-        
-        # Display each alien and its value
+
+        # Display each alien with retro-style point values - with significantly increased spacing
         for i, (alien, value_str, color) in enumerate(sample_aliens):
-            # Position alien
-            x_pos = self.screen.get_rect().centerx - 100
-            y_pos = 200 + i * 50
-            
+            # Position alien with minimal animation to prevent overlap
+            x_offset = math.sin(time_factor + i) * 3  # Very reduced animation
+            # Move aliens to left side for better spacing
+            x_pos = self.screen.get_rect().centerx - 250 + x_offset
+            y_pos = 170 + i * 50  # Tight but sufficient vertical spacing
+
+            # Draw pixel box around the alien
+            alien_box = pygame.Rect(x_pos - 10, y_pos - 5, 40, 40)
+            pygame.draw.rect(self.screen, (30, 30, 30), alien_box)
+            pygame.draw.rect(self.screen, color, alien_box, 1)
+
             # Render alien
             self.screen.blit(alien.image, (x_pos, y_pos))
-            
-            # Render value text
+
+            # Render value text with retro styling - with more spacing
             value_text = value_font.render(value_str, True, color)
-            self.screen.blit(value_text, (x_pos + 60, y_pos))
-        
-        # Draw buttons
-        (button_text, button_text_rect), button_rect = self.play_button
-        pygame.draw.rect(self.screen, (0, 255, 0), button_rect, 3)
-        self.screen.blit(button_text, button_text_rect)
-        
-        (button_text, button_text_rect), button_rect = self.high_scores_button
-        pygame.draw.rect(self.screen, (0, 255, 0), button_rect, 3)
-        self.screen.blit(button_text, button_text_rect)
+            self.screen.blit(value_text, (x_pos + 70, y_pos + 5))  # Moved text further right
+
+        # Create retro-styled buttons with pixel edges and glowing effect
+        play_button_text = "PLAY GAME"
+        high_scores_text = "HIGH SCORES"
+
+        button_width = 280
+        button_height = 50
+        button_color = (0, 0, 0)
+        button_border = (0, 255, 0)
+        text_color = (0, 255, 0)
+
+        button_font = pygame.font.SysFont('Courier New', 36)
+
+        # Position buttons even lower to avoid overlap with the additional aliens
+        # Play button with flashing effect when hovered
+        play_button_rect = pygame.Rect(self.screen.get_rect().centerx - button_width // 2,
+                                       460, button_width, button_height)  # Moved down further
+
+        # Check if mouse is over play button for hover effect
+        mouse_pos = pygame.mouse.get_pos()
+        play_hover = play_button_rect.collidepoint(mouse_pos)
+
+        # Draw play button with animated border if hovered
+        if play_hover and pygame.time.get_ticks() % 500 < 250:
+            pygame.draw.rect(self.screen, (0, 200, 0), play_button_rect.inflate(10, 10), 0)
+        pygame.draw.rect(self.screen, button_color, play_button_rect, 0)
+        pygame.draw.rect(self.screen, button_border, play_button_rect, 3)
+
+        # Draw pixelated corners for play button
+        corner_size = 8
+        for corner in [(0, 0), (button_width - corner_size, 0),
+                       (0, button_height - corner_size), (button_width - corner_size, button_height - corner_size)]:
+            pygame.draw.rect(self.screen, button_border,
+                             (play_button_rect.x + corner[0], play_button_rect.y + corner[1],
+                              corner_size, corner_size))
+
+        # Draw play button text
+        play_text = button_font.render(play_button_text, True, text_color)
+        self.screen.blit(play_text, play_text.get_rect(center=play_button_rect.center))
+
+        # High scores button - moved further down
+        scores_button_rect = pygame.Rect(self.screen.get_rect().centerx - button_width // 2,
+                                         520, button_width, button_height)  # More space between buttons
+
+        # Check if mouse is over high scores button
+        scores_hover = scores_button_rect.collidepoint(mouse_pos)
+
+        # Draw high scores button with animated border if hovered
+        if scores_hover and pygame.time.get_ticks() % 500 < 250:
+            pygame.draw.rect(self.screen, (0, 200, 0), scores_button_rect.inflate(10, 10), 0)
+        pygame.draw.rect(self.screen, button_color, scores_button_rect, 0)
+        pygame.draw.rect(self.screen, button_border, scores_button_rect, 3)
+
+        # Draw pixelated corners for high scores button
+        for corner in [(0, 0), (button_width - corner_size, 0),
+                       (0, button_height - corner_size), (button_width - corner_size, button_height - corner_size)]:
+            pygame.draw.rect(self.screen, button_border,
+                             (scores_button_rect.x + corner[0], scores_button_rect.y + corner[1],
+                              corner_size, corner_size))
+
+        # Draw high scores text
+        scores_text = button_font.render(high_scores_text, True, text_color)
+        self.screen.blit(scores_text, scores_text.get_rect(center=scores_button_rect.center))
+
+        # Update button hitboxes for interaction
+        self.play_button = ((play_text, play_text.get_rect(center=play_button_rect.center)), play_button_rect)
+        self.high_scores_button = (
+        (scores_text, scores_text.get_rect(center=scores_button_rect.center)), scores_button_rect)
+
+        # Draw retro copyright text
+        copyright_font = pygame.font.SysFont('Courier New', 16)
+        copyright_text = copyright_font.render("(C) 2025 ARCADE CLASSICS BY DYMANIC DUO", True, (150, 150, 150))
+        self.screen.blit(copyright_text, (20, self.settings.screen_height - 30))
     
     def _draw_high_scores_screen(self):
         """Draw the high scores screen."""
