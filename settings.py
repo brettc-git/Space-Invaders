@@ -35,7 +35,7 @@ class Settings:
         self.alien_bullet_width = 3
         self.alien_bullet_height = 15
         self.alien_bullet_color = WHITE
-        self.alien_firing_rate = 0.005  # Probability of an alien firing per frame
+        self.alien_firing_rate = 0.0005  # Probability of an alien firing per frame
         
         # UFO settings
         self.ufo_speed = 2.0
