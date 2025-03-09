@@ -4,7 +4,7 @@ A Python implementation of the classic Space Invaders arcade game using Pygame.
 
 ## Collaborators
 - Brett Chiu
-- Jared Olalde
+- Jared Olalde (Team Leader)
 
 ## Game Features
 
