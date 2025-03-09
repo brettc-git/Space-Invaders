@@ -42,7 +42,6 @@ A Python implementation of the classic Space Invaders arcade game using Pygame.
 - **scoreboard.py**: Score tracking and display
 
 ## Assets Used
-- Main Ship: https://foozlecc.itch.io/void-main-ship
 - All other assets created with pixel editors as required
 
 ## Requirements
